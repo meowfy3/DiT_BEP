@@ -76,7 +76,7 @@ class DiT_Clipped(L.LightningModule):
         self.batch_size = batch_size
 
     def train_dataloader(self): # load the dataset
-        dataset = ImgDataset("BEP256x256")
+        dataset = ImgDataset("BEP_dum")
         return DataLoader(
             dataset,
             batch_size=self.batch_size,
