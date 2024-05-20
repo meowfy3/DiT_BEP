@@ -18,6 +18,7 @@ class ImgDataset(Dataset):
         self.dataset_path = dataset_path
         self.target_transform = target_transform
         self.orange = os.listdir(os.path.join(dataset_path, 'Orange'))
+        self.blue = os.listdir(os.path.join(dataset_path, 'Blue'))
 
     def __len__(self):
         return len(self.blue)
