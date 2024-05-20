@@ -8,7 +8,7 @@ from torchvision.transforms import transforms
 from modules.training_utils import center_crop_arr
 
 
-class CircuitsDataset(Dataset):
+class ImgDataset(Dataset):
     def __init__(self, dataset_path, transform=None, target_transform=None, res=256):
         self.transform = transform if transform is not None else transforms.Compose([
             transforms.Lambda(lambda pil_image: center_crop_arr(pil_image, res)),
@@ -34,7 +34,7 @@ class CircuitsDataset(Dataset):
 
 
 if __name__ == '__main__':
-    img1, img2 = next(iter(CircuitsDataset("/Users/alexandrabuzuk/PycharmProjects/DiT_circuits/BEP256x256")))
+    img1, img2 = next(iter(ImgDataset("/Users/alexandrabuzuk/PycharmProjects/DiT_circuits/BEP256x256")))
     plt.imshow(img1.permute(1, 2, 0))
     plt.show()
     plt.imshow(img2.permute(1, 2, 0))
