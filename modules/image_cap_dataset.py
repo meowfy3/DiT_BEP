@@ -34,7 +34,7 @@ class ImgDataset(Dataset):
 
 
 if __name__ == '__main__':
-    img1, img2 = next(iter(ImgDataset("/Users/alexandrabuzuk/PycharmProjects/DiT_circuits/BEP256x256")))
+    img1, img2 = next(iter(ImgDataset('/content/drive/My Drive/BEP_Datasets/256/')))
     plt.imshow(img1.permute(1, 2, 0))
     plt.show()
     plt.imshow(img2.permute(1, 2, 0))
