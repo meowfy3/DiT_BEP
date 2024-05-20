@@ -7,7 +7,7 @@ import torchvision
 from timm.models.vision_transformer import PatchEmbed
 from torch.utils.data import DataLoader
 
-from modules.image_cap_dataset import CircuitsDataset
+from modules.image_cap_dataset import ImgDataset
 from modules.utils import TimestepEmbedder, DiTBlock, FinalLayer, get_2d_sincos_pos_embed
 
 
@@ -76,7 +76,7 @@ class DiT_Clipped(L.LightningModule):
         self.batch_size = batch_size
 
     def train_dataloader(self): # load the dataset
-        dataset = CircuitsDataset("BEP256x256")
+        dataset = ImgDataset("BEP256x256")
         return DataLoader(
             dataset,
             batch_size=self.batch_size,
