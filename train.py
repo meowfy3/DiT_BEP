@@ -11,6 +11,13 @@ from modules.dit_builder import DiT_models
 from modules.training_utils import center_crop_arr
 
 
+class PrintLossCallback(L.Callback):
+    def on_train_epoch_end(self, trainer, pl_module):
+        train_loss = trainer.callback_metrics.get('train_loss')
+        if train_loss is not None:
+            print(f"Epoch {trainer.current_epoch} - Train Loss: {train_loss:.4f}")
+
+
 def train(args):
     print("Starting training..")
 
@@ -48,8 +55,7 @@ def train(args):
         devices="auto",
         max_epochs=args.epochs,
         precision="16-mixed" if args.precision == "fp16" else "32-true",
-        callbacks=[model_ckpt,
-                   StochasticWeightAveraging(swa_lrs=1e-2)],
+        callbacks=[model_ckpt, StochasticWeightAveraging(swa_lrs=1e-2), PrintLossCallback()],
         accumulate_grad_batches=1,
     )
 
