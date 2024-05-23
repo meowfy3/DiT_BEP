@@ -75,6 +75,17 @@ class DiT_Clipped(L.LightningModule):
         self.blocks = nn.ModuleList(self.blocks)
         self.batch_size = batch_size
 
+    def val_dataloader(self):
+        dataset = ImgDataset(r'/workspace/BEP256', split='val')
+        return DataLoader(
+            dataset,
+            batch_size=self.batch_size,
+            shuffle=False,  # Don't shuffle validation data
+            pin_memory=True,
+            drop_last=True,
+            num_workers=1,
+        )
+        
     def train_dataloader(self): # load the dataset
         dataset = ImgDataset(r'/workspace/BEP256')
         return DataLoader(
@@ -83,6 +94,7 @@ class DiT_Clipped(L.LightningModule):
             shuffle=True,
             pin_memory=True,
             drop_last=True,
+            num_workers=1,
         )
 
     def initialize_weights(self):
@@ -202,9 +214,29 @@ class DiT_Clipped(L.LightningModule):
         loss = loss_dict["loss"].mean()  # loss
 
         self.log("train_loss", loss)
-
         return loss
 
+    def validation_step(self, val_batch, batch_idx):
+        img, context_img = val_batch;
+
+        with torch.no_grad():
+            context_img = self.encoder(context_img)  # orange to get embeddings for condition
+            x = self.vae.encode(img).latent_dist.sample().mul_(0.18215)  # blue -- add noise
+        t = torch.randint(0, self.diffusion.num_timesteps, (x.shape[0],), device=self.device)
+
+        model_kwargs = dict(context=context_img)
+        loss_dict = self.diffusion.training_losses(self, x, t, model_kwargs)
+
+        del x, t, context_img, model_kwargs  # save memory
+        torch.cuda.empty_cache()
+        gc.collect()
+
+        loss = loss_dict["loss"].mean(); # loss
+
+        self.log("val_loss", loss);
+        return loss
+    
+    
     def backward(self, loss, *args, **kwargs) -> None:  # backpropagation
         loss.backward()
 
