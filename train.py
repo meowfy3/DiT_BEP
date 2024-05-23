@@ -1,21 +1,67 @@
 import argparse
-
+import matplotlib.pyplot as plt
 import lightning as L
 import torch
+import csv
 from diffusers.models import AutoencoderKL
 from lightning.pytorch.callbacks import *
 from torchvision.transforms import transforms
+import sys  
 
 from modules.diffusion import create_diffusion
 from modules.dit_builder import DiT_models
-from modules.training_utils import center_crop_arr
+
+
+
+class LitProgressBar(ProgressBar):
+
+    def __init__(self):
+        super().__init__()  # don't forget this :)
+        self.enable = True
+
+    def disable(self):
+        self.enable = False
+
+    def on_train_batch_end(self, trainer, pl_module, outputs, batch, batch_idx):
+        super().on_train_batch_end(trainer, pl_module, outputs, batch, batch_idx)  # don't forget this :)
+        percent = (batch_idx / self.total_train_batches) * 100
+        sys.stdout.flush()
+        sys.stdout.write(f'{percent:.01f} percent complete \r')
+
 
 
 class PrintLossCallback(L.Callback):
+    def __init__(self):
+        super().__init__()
+        self.train_losses = []
+        self.val_losses = []
+        self.csv_file = 'losses.csv'
+
     def on_train_epoch_end(self, trainer, pl_module):
         train_loss = trainer.callback_metrics.get('train_loss')
-        if train_loss is not None:
-            print(f"Epoch {trainer.current_epoch} - Train Loss: {train_loss:.4f}")
+        val_loss = trainer.callback_metrics.get('val_loss')
+        if train_loss is not None and val_loss is not None:
+            self.train_losses.append(train_loss.cpu().item())
+            self.val_losses.append(val_loss.cpu().item())
+            print(f"Epoch {trainer.current_epoch} - Train Loss: {train_loss:.4f} - Val Loss: {val_loss:.4f}")
+
+            # Write to CSV
+            with open(self.csv_file, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow([trainer.current_epoch, train_loss.cpu().item(), val_loss.cpu().item()])
+
+    def on_train_end(self, trainer, pl_module):
+        # Plot the losses
+        epochs = range(len(self.train_losses))
+        plt.figure()
+        plt.plot(epochs, self.train_losses, label='Training Loss')
+        plt.plot(epochs, self.val_losses, label='Validation Loss')
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.legend()
+        plt.title('Training and Validation Loss')
+        plt.savefig('loss_plot.png')
+        plt.show()
 
 
 def train(args):
@@ -55,11 +101,12 @@ def train(args):
         devices="auto",
         max_epochs=args.epochs,
         precision="16-mixed" if args.precision == "fp16" else "32-true",
-        callbacks=[model_ckpt, StochasticWeightAveraging(swa_lrs=1e-2), PrintLossCallback()],
+        callbacks=[model_ckpt, StochasticWeightAveraging(swa_lrs=1e-2), PrintLossCallback(), LitProgressBar()],
         accumulate_grad_batches=1,
     )
 
     trainer.fit(model)  # updating of weights
+    trainer.validate(model);
 
 
 if __name__ == "__main__":
