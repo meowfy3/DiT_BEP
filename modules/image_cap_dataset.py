@@ -9,7 +9,7 @@ from modules.training_utils import center_crop_arr
 
 
 class ImgDataset(Dataset):
-    def __init__(self, dataset_path, transform=None, target_transform=None, res=256):
+    def __init__(self, dataset_path, split='train', transform=None, target_transform=None, res=256):
         self.transform = transform if transform is not None else transforms.Compose([
             transforms.Lambda(lambda pil_image: center_crop_arr(pil_image, res)),
             transforms.ToTensor(),
@@ -20,6 +20,23 @@ class ImgDataset(Dataset):
         self.orange = os.listdir(os.path.join(dataset_path, 'Orange'))
         self.blue = os.listdir(os.path.join(dataset_path, 'Blue'))
 
+        # Splitting the dataset
+        num_images = len(self.blue)
+        train_end = int(0.8 * num_images)
+        val_end = int(0.9 * num_images)
+        
+        if split == 'train':
+            self.orange = self.orange[:train_end]
+            self.blue = self.blue[:train_end]
+        elif split == 'val':
+            self.orange = self.orange[train_end:val_end]
+            self.blue = self.blue[train_end:val_end]
+        elif split == 'test':
+            self.orange = self.orange[val_end:]
+            self.blue = self.blue[val_end:]
+        else:
+            raise ValueError("Invalid split name")
+    
     def __len__(self):
         return len(self.blue)
 
