@@ -39,7 +39,7 @@ class DiT_Clipped(L.LightningModule):
             patch_size=2,
             in_channels=4,
             hidden_size=1152,
-            context_dim=512,
+            context_dim=256,
             depth=28,
             num_heads=16,
             mlp_ratio=4.0,
@@ -213,7 +213,7 @@ class DiT_Clipped(L.LightningModule):
 
         loss = loss_dict["loss"].mean()  # loss
 
-        self.log("train_loss", loss)
+        self.log("train_loss", loss,sync_dist=True)
         return loss
 
     def validation_step(self, val_batch, batch_idx):
@@ -233,7 +233,7 @@ class DiT_Clipped(L.LightningModule):
 
         loss = loss_dict["loss"].mean(); # loss
 
-        self.log("val_loss", loss);
+        self.log("val_loss", loss,sync_dist=True);
         return loss
     
     
