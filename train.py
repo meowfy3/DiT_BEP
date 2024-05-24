@@ -103,6 +103,7 @@ def train(args):
         precision="16-mixed" if args.precision == "fp16" else "32-true",
         callbacks=[model_ckpt, StochasticWeightAveraging(swa_lrs=1e-2), PrintLossCallback(), LitProgressBar()],
         accumulate_grad_batches=1,
+        strategy='ddp_find_unused_parameters_true',
     )
 
     trainer.fit(model)  # updating of weights
