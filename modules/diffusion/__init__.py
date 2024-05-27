@@ -23,7 +23,7 @@ def create_diffusion(
     elif rescale_learned_sigmas:
         loss_type = gd.LossType.RESCALED_MSE
     else:
-        loss_type = gd.LossType.MSE
+        loss_type = gd.LossType.LOGCOSH
     if timestep_respacing is None or timestep_respacing == "":
         timestep_respacing = [diffusion_steps]
     return SpacedDiffusion(
