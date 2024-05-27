@@ -44,12 +44,13 @@ class ModelVarType(enum.Enum):
 
 
 class LossType(enum.Enum):
-    MSE = enum.auto()  # use raw MSE loss (and KL when learning variances)
-    RESCALED_MSE = (
-        enum.auto()
-    )  # use raw MSE loss (with RESCALED_KL when learning variances)
-    KL = enum.auto()  # use the variational lower-bound
-    RESCALED_KL = enum.auto()  # like KL, but rescale to estimate the full VLB
+    MSE = enum.auto()
+    RESCALED_MSE = enum.auto()
+    KL = enum.auto()
+    RESCALED_KL = enum.auto()
+    MAE = enum.auto()
+    HUBER = enum.auto()
+    LOGCOSH = enum.auto()
 
     def is_vb(self):
         return self == LossType.KL or self == LossType.RESCALED_KL
