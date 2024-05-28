@@ -39,7 +39,7 @@ class DiT_Clipped(L.LightningModule):
             patch_size=2,
             in_channels=4,
             hidden_size=1152,
-            context_dim=256,
+            context_dim=640,
             depth=28,
             num_heads=16,
             mlp_ratio=4.0,
