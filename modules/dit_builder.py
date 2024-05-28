@@ -17,7 +17,7 @@ from .dit_clipped import DiT_Clipped
 #################################################################################
 
 def DiT_clipper_builder(**kwargs):  # change configuration (depth=num DiT blocks, h_s=length embeddings,n_h=attention )
-    return DiT_Clipped(depth=4, hidden_size=256, patch_size=2, num_heads=4, **kwargs)
+    return DiT_Clipped(depth=6, hidden_size=640, patch_size=2, num_heads=4, **kwargs)
 # you can try firstly to play with these cnfg (kwargs=key_words_arguments)
 # CHANGE 'ARCHITECTURE'
 
