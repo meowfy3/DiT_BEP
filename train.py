@@ -114,7 +114,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--results-dir", type=str, default="results")
     parser.add_argument("--model", type=str, choices=list(DiT_models.keys()), default="DiT_Clipped")
-    parser.add_argument("--image-size", type=int, choices=[128, 256, 512], default=256)
+    parser.add_argument("--image-size", type=int, choices=[128, 256, 512, 1024, 2048], default=256)
     parser.add_argument("--epochs", type=int, default=500)
     parser.add_argument("--global-batch-size", type=int, default=8)
     parser.add_argument("--global-seed", type=int, default=0)
