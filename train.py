@@ -12,6 +12,8 @@ from modules.diffusion import create_diffusion
 from modules.dit_builder import DiT_models
 
 
+torch.set_float32_matmul_precision('high')
+
 
 class LitProgressBar(ProgressBar):
 
